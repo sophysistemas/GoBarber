@@ -25,6 +25,16 @@ export class CreateAppointments1590582943789 implements MigrationInterface {
               type: 'timestamp with time zone',
               isNullable: false,
             },
+            {
+              name: 'created_at',
+              type: 'timestamp',
+              default: 'now()',
+            },
+            {
+              name: 'updated_at',
+              type: 'timestamp',
+              default: 'now()',
+            },
           ],
         }),
       );
