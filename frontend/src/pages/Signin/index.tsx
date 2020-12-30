@@ -1,9 +1,12 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useEffect } from 'react';
 import { FiLogIn, FiMail, FiLock } from 'react-icons/fi';
 import { Form } from '@unform/web';
 import { FormHandles } from '@unform/core';
 import * as Yup from 'yup';
-import { useAuth } from '../../hooks/AuthContext';
+
+import { useAuth } from '../../hooks/auth';
+import { useToast } from '../../hooks/toast';
+
 import getValidationErros from '../../utils/getValdationErrors';
 import logoImg from '../../assets/logo.svg'
 import Input from '../../components/Input';
@@ -19,6 +22,7 @@ const SingIn: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
 
   const { signIn } = useAuth();
+  const { addToast } = useToast();
 
   const handleSubmit = useCallback(async(data: SignInFormData) => {
 
@@ -36,16 +40,24 @@ const SingIn: React.FC = () => {
       await schema.validate(data, {
         abortEarly: false,
       })
-      signIn({
+      await signIn({
         email: data.email,
         password: data.password,
       });
 
     } catch (err) {
-      const errors = getValidationErros(err);
-      formRef.current?.setErrors(errors);
+      if (err instanceof Yup.ValidationError) {
+        const errors = getValidationErros(err);
+        formRef.current?.setErrors(errors);
+      } else {
+        addToast({
+          type: 'error',
+          title: 'Erro de autenticação',
+          description: 'Login inválido! Cheque as credenciais.'
+        });
+      }
     }
-  }, [signIn]);
+  }, [signIn, addToast]);
   return(
     <Container>
       <Content>
